@@ -1,5 +1,5 @@
-import { a as isRemoteAllowed, j as joinPaths, i as isRemotePath, t as typeHandlers, b as types } from './index_D34Bo7Tx.mjs';
-import { A as AstroError, E as ExpectedImage, L as LocalImageUsedWrongly, M as MissingImageDimension, l as UnsupportedImageFormat, I as IncompatibleDescriptorOptions, n as UnsupportedImageConversion, t as toStyleString, N as NoImageMetadata, F as FailedToFetchRemoteImageDimensions, o as ExpectedImageOptions, p as ExpectedNotESMImage, q as InvalidImageService, c as createComponent, a as createAstro, s as ImageMissingAlt, m as maybeRenderHead, d as addAttribute, v as spreadAttributes, b as renderTemplate, w as ExperimentalFontsNotEnabled, x as FontFamilyNotFound, u as unescapeHTML } from './astro/server_CVkt71N5.mjs';
+import { a as isRemoteAllowed, j as joinPaths, i as isRemotePath, t as typeHandlers, b as types } from './index_D7gUopMC.mjs';
+import { A as AstroError, E as ExpectedImage, L as LocalImageUsedWrongly, M as MissingImageDimension, l as UnsupportedImageFormat, I as IncompatibleDescriptorOptions, n as UnsupportedImageConversion, t as toStyleString, N as NoImageMetadata, F as FailedToFetchRemoteImageDimensions, o as ExpectedImageOptions, p as ExpectedNotESMImage, q as InvalidImageService, c as createComponent, s as ImageMissingAlt, m as maybeRenderHead, e as addAttribute, v as spreadAttributes, a as renderTemplate, b as createAstro, w as ExperimentalFontsNotEnabled, x as FontFamilyNotFound, u as unescapeHTML } from './astro/server_DvKNgxRE.mjs';
 import * as mime from 'mrmime';
 import 'clsx';
 import 'piccolore';
@@ -32,7 +32,8 @@ const DEFAULT_HASH_PROPS = [
   "format",
   "quality",
   "fit",
-  "position"
+  "position",
+  "background"
 ];
 
 const DEFAULT_RESOLUTIONS = [
@@ -251,6 +252,7 @@ const baseService = {
       priority,
       fit,
       position,
+      background,
       ...attributes
     } = options;
     return {
@@ -330,7 +332,8 @@ const baseService = {
       q: "quality",
       f: "format",
       fit: "fit",
-      position: "position"
+      position: "position",
+      background: "background"
     };
     Object.entries(params).forEach(([param, key]) => {
       options[key] && searchParams.append(param, options[key].toString());
@@ -357,7 +360,8 @@ const baseService = {
       format: params.get("f"),
       quality: params.get("q"),
       fit: params.get("fit"),
-      position: params.get("position") ?? void 0
+      position: params.get("position") ?? void 0,
+      background: params.get("background") ?? void 0
     };
     return transform;
   }
@@ -397,6 +401,7 @@ function addCSSVarsToStyle(vars, styles) {
 }
 
 const firstBytes = /* @__PURE__ */ new Map([
+  [0, "heif"],
   [56, "psd"],
   [66, "bmp"],
   [68, "dds"],
@@ -414,7 +419,7 @@ function detector(input) {
   if (type && typeHandlers.get(type).validate(input)) {
     return type;
   }
-  return types.find((fileType) => typeHandlers.get(fileType).validate(input));
+  return types.find((imageType) => typeHandlers.get(imageType).validate(input));
 }
 
 function lookup(input) {
@@ -504,7 +509,7 @@ async function getConfiguredImageService() {
   if (!globalThis?.astroAsset?.imageService) {
     const { default: service } = await import(
       // @ts-expect-error
-      './sharp_CG9a94lO.mjs'
+      './sharp_Dnh_Y_31.mjs'
     ).catch((e) => {
       const error = new AstroError(InvalidImageService);
       error.cause = e;
@@ -759,7 +764,7 @@ const $$Picture = createComponent(async ($$result, $$props, $$slots) => {
   })}  <img${addAttribute(fallbackImage.src, "src")}${spreadAttributes(attributes)}${addAttribute(className, "class")}> </picture>`;
 }, "C:/workspace/curso-astro5/node_modules/astro/components/Picture.astro", void 0);
 
-const fontsMod = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+const mod = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null
 }, Symbol.toStringTag, { value: 'Module' }));
 
@@ -802,19 +807,19 @@ const $$Astro = createAstro();
 const $$Font = createComponent(($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
   Astro2.self = $$Font;
-  const { internalConsumableMap } = fontsMod;
-  if (!internalConsumableMap) {
+  const { componentDataByCssVariable } = mod;
+  if (!componentDataByCssVariable) {
     throw new AstroError(ExperimentalFontsNotEnabled);
   }
   const { cssVariable, preload = false } = Astro2.props;
-  const data = internalConsumableMap.get(cssVariable);
+  const data = componentDataByCssVariable.get(cssVariable);
   if (!data) {
     throw new AstroError({
       ...FontFamilyNotFound,
       message: FontFamilyNotFound.message(cssVariable)
     });
   }
-  const filteredPreloadData = filterPreloads(data.preloadData, preload);
+  const filteredPreloadData = filterPreloads(data.preloads, preload);
   return renderTemplate`<style>${unescapeHTML(data.css)}</style>${filteredPreloadData?.map(({ url, type }) => renderTemplate`<link rel="preload"${addAttribute(url, "href")} as="font"${addAttribute(`font/${type}`, "type")} crossorigin>`)}`;
 }, "C:/workspace/curso-astro5/node_modules/astro/components/Font.astro", void 0);
 

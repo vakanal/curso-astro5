@@ -1,12 +1,12 @@
-import { z as decryptString, B as createSlotValueFromString, C as isAstroComponentFactory, r as renderComponent, b as renderTemplate, D as ROUTE_TYPE_HEADER, G as REROUTE_DIRECTIVE_HEADER, A as AstroError, H as i18nNoLocaleFoundInPath, J as ResponseSentError, K as ActionNotFoundError, O as MiddlewareNoDataOrNextCalled, P as MiddlewareNotAResponse, Q as originPathnameSymbol, S as RewriteWithBodyUsed, T as GetStaticPathsRequired, V as InvalidGetStaticPathsReturn, W as InvalidGetStaticPathsEntry, X as GetStaticPathsExpectedParams, Y as GetStaticPathsInvalidRouteParam, Z as PageNumberParamNotFound, _ as DEFAULT_404_COMPONENT, $ as NoMatchingStaticPathFound, a0 as PrerenderDynamicEndpointPathCollide, a1 as ReservedSlotName, a2 as renderSlotToString, a3 as renderJSX, a4 as chunkToString, a5 as isRenderInstruction, a6 as ForbiddenRewrite, a7 as SessionStorageInitError, a8 as SessionStorageSaveError, a9 as ASTRO_VERSION, aa as CspNotEnabled, ab as LocalsReassigned, ac as generateCspDigest, ad as PrerenderClientAddressNotAvailable, ae as clientAddressSymbol, af as ClientAddressNotAvailable, ag as StaticClientAddressNotAvailable, ah as AstroResponseHeadersReassigned, ai as responseSentSymbol$1, aj as renderPage, ak as REWRITE_DIRECTIVE_HEADER_KEY, al as REWRITE_DIRECTIVE_HEADER_VALUE, am as renderEndpoint, an as LocalsNotAnObject, ao as REROUTABLE_STATUS_CODES, ap as nodeRequestAbortControllerCleanupSymbol } from './astro/server_CVkt71N5.mjs';
+import { z as decryptString, B as createSlotValueFromString, C as isAstroComponentFactory, r as renderComponent, a as renderTemplate, D as ROUTE_TYPE_HEADER, G as REROUTE_DIRECTIVE_HEADER, A as AstroError, H as i18nNoLocaleFoundInPath, J as ResponseSentError, K as ActionNotFoundError, O as MiddlewareNoDataOrNextCalled, P as MiddlewareNotAResponse, Q as originPathnameSymbol, S as RewriteWithBodyUsed, T as GetStaticPathsRequired, V as InvalidGetStaticPathsReturn, W as InvalidGetStaticPathsEntry, X as GetStaticPathsExpectedParams, Y as GetStaticPathsInvalidRouteParam, Z as PageNumberParamNotFound, _ as DEFAULT_404_COMPONENT, $ as NoMatchingStaticPathFound, a0 as PrerenderDynamicEndpointPathCollide, a1 as ReservedSlotName, a2 as renderSlotToString, a3 as renderJSX, a4 as chunkToString, a5 as isRenderInstruction, a6 as ForbiddenRewrite, a7 as SessionStorageInitError, a8 as SessionStorageSaveError, a9 as ASTRO_VERSION, aa as CspNotEnabled, ab as LocalsReassigned, ac as generateCspDigest, ad as PrerenderClientAddressNotAvailable, ae as clientAddressSymbol, af as ClientAddressNotAvailable, ag as StaticClientAddressNotAvailable, ah as AstroResponseHeadersReassigned, ai as responseSentSymbol$1, aj as renderPage, ak as REWRITE_DIRECTIVE_HEADER_KEY, al as REWRITE_DIRECTIVE_HEADER_VALUE, am as renderEndpoint, an as LocalsNotAnObject, ao as FailedToFindPageMapSSR, ap as REROUTABLE_STATUS_CODES, aq as nodeRequestAbortControllerCleanupSymbol } from './astro/server_DvKNgxRE.mjs';
 import colors from 'piccolore';
 import 'clsx';
-import { A as ActionError, d as deserializeActionResult, s as serializeActionResult, a as ACTION_RPC_ROUTE_PATTERN, b as ACTION_QUERY_PARAMS, g as getActionQueryString, D as DEFAULT_404_ROUTE, c as default404Instance, N as NOOP_MIDDLEWARE_FN, e as ensure404Route } from './astro-designed-error-pages_EPx0BauS.mjs';
+import { A as ActionError, d as deserializeActionResult, s as serializeActionResult, a as ACTION_RPC_ROUTE_PATTERN, b as ACTION_QUERY_PARAMS, g as getActionQueryString, D as DEFAULT_404_ROUTE, c as default404Instance, N as NOOP_MIDDLEWARE_FN, e as ensure404Route } from './astro-designed-error-pages_RfDMWWLt.mjs';
 import 'es-module-lexer';
 import buffer from 'node:buffer';
 import crypto$1 from 'node:crypto';
 import { Http2ServerResponse } from 'node:http2';
-import { c as appendForwardSlash, j as joinPaths, f as fileExtension, s as slash, p as prependForwardSlash, d as removeTrailingForwardSlash, e as trimSlashes, m as matchPattern, g as isInternalPath, h as collapseDuplicateTrailingSlashes, k as hasFileExtension } from './index_D34Bo7Tx.mjs';
+import { c as appendForwardSlash, j as joinPaths, f as fileExtension, s as slash, p as prependForwardSlash, d as removeTrailingForwardSlash, e as trimSlashes, m as matchPattern, g as isInternalPath, h as collapseDuplicateTrailingSlashes, k as hasFileExtension } from './index_D7gUopMC.mjs';
 import { serialize, parse } from 'cookie';
 import { unflatten as unflatten$1, stringify as stringify$1 } from 'devalue';
 import { createStorage, builtinDrivers } from 'unstorage';
@@ -14,7 +14,6 @@ import { s as setGetEnv } from './runtime_x9uYhqlb.mjs';
 import '@vercel/routing-utils';
 import 'deterministic-object-hash';
 import nodePath from 'node:path';
-import { builtinModules } from 'node:module';
 
 function shouldAppendForwardSlash(trailingSlash, buildFormat) {
   switch (trailingSlash) {
@@ -101,7 +100,7 @@ async function getRequestData(request) {
       }
       const encryptedSlots = params.get("s");
       return {
-        componentExport: params.get("e"),
+        encryptedComponentExport: params.get("e"),
         encryptedProps: params.get("p"),
         encryptedSlots
       };
@@ -112,6 +111,11 @@ async function getRequestData(request) {
         const data = JSON.parse(raw);
         if ("slots" in data && typeof data.slots === "object") {
           return badRequest("Plaintext slots are not allowed. Slots must be encrypted.");
+        }
+        if ("componentExport" in data && typeof data.componentExport === "string") {
+          return badRequest(
+            "Plaintext componentExport is not allowed. componentExport must be encrypted."
+          );
         }
         return data;
       } catch (e) {
@@ -148,6 +152,12 @@ function createEndpoint(manifest) {
       });
     }
     const key = await manifest.key;
+    let componentExport;
+    try {
+      componentExport = await decryptString(key, data.encryptedComponentExport);
+    } catch (_e) {
+      return badRequest("Encrypted componentExport value is invalid.");
+    }
     const encryptedProps = data.encryptedProps;
     let props = {};
     if (encryptedProps !== "") {
@@ -169,7 +179,7 @@ function createEndpoint(manifest) {
       }
     }
     const componentModule = await imp();
-    let Component = componentModule[data.componentExport];
+    let Component = componentModule[componentExport];
     const slots = {};
     for (const prop in decryptedSlots) {
       slots[prop] = createSlotValueFromString(decryptedSlots[prop]);
@@ -3565,6 +3575,12 @@ class App {
     let session;
     try {
       const mod = await this.#pipeline.getModuleForRoute(routeData);
+      if (!mod || typeof mod.page !== "function") {
+        throw new AstroError({
+          ...FailedToFindPageMapSSR,
+          message: `The module for route "${routeData.route}" does not have a valid page function. This may occur when using static output mode with an SSR adapter.`
+        });
+      }
       const renderContext = await RenderContext.create({
         pipeline: this.#pipeline,
         locals,
@@ -3577,6 +3593,7 @@ class App {
       session = renderContext.session;
       response = await renderContext.render(await mod.page());
     } catch (err) {
+      this.#logger.error("router", "Error while trying to render the route " + routeData.route);
       this.#logger.error(null, err.stack || err.message || String(err));
       return this.#renderError(request, {
         locals,
@@ -3658,6 +3675,11 @@ class App {
         }
       }
       const mod = await this.#pipeline.getModuleForRoute(errorRouteData);
+      if (!mod || typeof mod.page !== "function") {
+        const response2 = this.#mergeResponses(new Response(null, { status }), originalResponse);
+        Reflect.set(response2, responseSentSymbol$1, true);
+        return response2;
+      }
       let session;
       try {
         const renderContext = await RenderContext.create({
@@ -4024,10 +4046,6 @@ function getRequestSocket(req) {
 apply();
 
 nodePath.posix.join;
-
-new RegExp(
-  builtinModules.map((mod) => `(^${mod}$|^node:${mod}$)`).join("|")
-);
 
 const ASTRO_PATH_HEADER = "x-astro-path";
 const ASTRO_PATH_PARAM = "x_astro_path";
