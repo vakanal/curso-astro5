@@ -1,19 +1,21 @@
 import { renderers } from './renderers.mjs';
-import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_Fs_lkEVA.mjs';
-import { manifest } from './manifest_B2gdMi63.mjs';
+import { c as createExports, s as serverEntrypointModule } from './chunks/_@astrojs-ssr-adapter_D4oVxswu.mjs';
+import { manifest } from './manifest_DUMhKOks.mjs';
 
 const serverIslandMap = new Map([
-	['BookScore', () => import('./chunks/BookScore_BMzQFf2N.mjs')],
-	['BuyButton', () => import('./chunks/BuyButton_CYEBzsQ2.mjs')],
+	['BookScore', () => import('./chunks/BookScore_CktXhTug.mjs')],
+	['BuyButton', () => import('./chunks/BuyButton_b4t2fIVA.mjs')],
 ]);;
 
 const _page0 = () => import('./pages/_image.astro.mjs');
-const _page1 = () => import('./pages/libro/_id_.astro.mjs');
-const _page2 = () => import('./pages/index.astro.mjs');
+const _page1 = () => import('./pages/about.astro.mjs');
+const _page2 = () => import('./pages/libro/_id_.astro.mjs');
+const _page3 = () => import('./pages/index.astro.mjs');
 const pageMap = new Map([
     ["node_modules/astro/dist/assets/endpoint/generic.js", _page0],
-    ["src/pages/libro/[id].astro", _page1],
-    ["src/pages/index.astro", _page2]
+    ["src/pages/about.astro", _page1],
+    ["src/pages/libro/[id].astro", _page2],
+    ["src/pages/index.astro", _page3]
 ]);
 
 const _manifest = Object.assign(manifest, {
@@ -24,7 +26,7 @@ const _manifest = Object.assign(manifest, {
     middleware: () => import('./_noop-middleware.mjs')
 });
 const _args = {
-    "middlewareSecret": "810433b0-680f-4c1c-9ffc-3a28da9b4ece",
+    "middlewareSecret": "ea1a24a8-a83a-419d-84b1-8d24bfe71500",
     "skewProtection": false
 };
 const _exports = createExports(_manifest, _args);
